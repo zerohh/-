@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>刮刮乐</title>
+    <style>
+        .parent {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-content: center;
+        }
+        .first, .second{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .each{
+            background: #d5201a;
+            width: 260px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .title{
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            color: yellow;
+        }
+        .content{
+            height: 100px;
+            background: #d3d3d3;
+            margin-bottom: 40px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+<div class="parent">
+    <div class="first">
+        <div class="each">
+            <div class="title">刮一刮</div>
+            <div class="content">
+                <canvas width="180" height="100"></canvas>
+            </div>
+        </div>
+        <div class="each">
+            <div class="title">刮一刮</div>
+            <div class="content">
+                <canvas width="180" height="100"></canvas>
+            </div>
+        </div>
+        <div class="each">
+            <div class="title">刮一刮</div>
+            <div class="content">
+                <canvas width="180" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="second">
+        <div class="each">
+            <div class="title">刮一刮</div>
+            <div class="content">
+                <canvas width="180" height="100"></canvas>
+            </div>
+        </div>
+        <div class="each">
+            <div class="title">刮一刮</div>
+            <div class="content">
+                <canvas width="180" height="100"></canvas>
+            </div>
+        </div>
+        <div class="each">
+            <div class="title">刮一刮</div>
+            <div class="content">
+                <canvas width="180" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    var bodyStyle = document.body.style;
+    bodyStyle.mozUserSelect = "none";
+    bodyStyle.webkitUserSelect = "none";
+    var imgs = ['./1.png', './2.png', './3.png', './4.png', './5.png', './6.png'];
+    var tempLength = [0, 1, 2, 3, 4, 5];
+    var canvases = document.getElementsByTagName("canvas");
+    var width = 180, height = 100;
+    for (var i = 0; i < canvases.length ; i++) {
+        var tempNumber = Math.floor(Math.random() * tempLength.length);
+        var targetIndex = tempLength[tempNumber];
+        tempLength.splice(tempNumber, 1);
+        createEach(canvases[i], targetIndex);
+    }
+    function createEach(canvas, index) {
+        var img = new Image();
+        img.src = imgs[index];
+        img.addEventListener("load", function (ev) {
+
+            canvas.style.backgroundImage = "url("+img.src+")";
+            canvas.style.backgroundRepeat = "norepeat";
+            canvas.style.backgroundSize = "100% 100%";
+
+            var mousedown = false;
+            var offsetX = canvas.offsetLeft;
+            var offsetY = canvas.offsetTop;
+
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "transparent";
+            ctx.fillRect(0, 0 , width, height);
+
+            function layer(ctx){
+                //定义新的图层，用新的图层替代原有图层
+                ctx.fillStyle = "#999999";
+                ctx.fillRect(0,0,width,height);
+            }
+            function eventDown(e){
+                e.preventDefault();
+                mousedown = true;
+            }
+            function eventUp(e){
+                e.preventDefault();
+                mousedown = false;
+            }
+            function eventMove(e){
+                e.preventDefault();
+                if(mousedown){
+                    if(e.changedTouches){
+                        e =  e.changedTouches[e.changedTouches.length -1];
+                    }
+                    var x = (e.clientX +  document.body.scrollLeft || e.pageX) - offsetX || 0,
+                        y = (e.clientY + document.body.scrollTop || e.pageY) - offsetY || 0;
+                    with(ctx){
+                        beginPath()
+                        arc(x,y,10,0,Math.PI * 2);
+                        fill();
+                    }
+                }
+            }
+
+
+            layer(ctx);
+
+            //用新的图层替换原有的图层
+            ctx.globalCompositeOperation = "destination-out";
+
+            //添加监听事件
+            canvas.addEventListener("touchstart", eventDown);
+            canvas.addEventListener("touchend",eventUp);
+            canvas.addEventListener('touchmove', eventMove);
+            canvas.addEventListener("mousedown", eventDown);
+            canvas.addEventListener("mouseup", eventUp);
+            canvas.addEventListener("mousemove", eventMove);
+        });
+    }
+</script>
+</html>
